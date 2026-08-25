@@ -16,5 +16,13 @@ func (s *Store) Put(key, value string) {
 }
 
 func (s *Store) Snapshot() map[string]string {
-	return s.items
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	// 返回内部 map 的深拷贝，避免调用方对返回值的写操作、
+	// 或后续 Put 影响到已生成的快照。快照一旦生成即应不可变。
+	snapshot := make(map[string]string, len(s.items))
+	for key, value := range s.items {
+		snapshot[key] = value
+	}
+	return snapshot
 }
