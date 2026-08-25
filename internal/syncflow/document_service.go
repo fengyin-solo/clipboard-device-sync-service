@@ -13,10 +13,11 @@ func NewDocumentService(builder document.Builder, cache *document.Cache) *Docume
 
 func (s *DocumentService) Build(id, payload string) error {
 	doc, err := s.builder.Build(id, payload)
-	s.cache.Put(doc)
 	if err != nil {
+		// 构建失败不得把半成品写入缓存，直接返回错误。
 		return err
 	}
+	s.cache.Put(doc)
 	return nil
 }
 
